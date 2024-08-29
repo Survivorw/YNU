@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh"><head>
+
+    <meta charset="utf-8">
+
+    <title>手写上传</title>
+
+    <meta name="viewport" content="width=device-width,initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="css/HandWrite.css">
+
+</head>
+
+<body onselectstart="return false">
+
+<div id="mnist-pad">
+
+    <div class="mnist-pad-body">
+<canvas id="canvas" width="800" height="600" fillStyle="#C3C3C3" > </canvas>
+    </div>
+
+    <div class="mnist-pad-footer">
+        <div class="mnist-pad-result">
+
+           <div class="result">
+               <h5>识别结果:</h5>
+               <h5 id="mnist-pad-result" ></h5>
+           </div>
+
+        </div>
+        <div class="mnist-pad-actions">
+            <button type="button" id="mnist-pad-clear" class="clear" >清除</button>
+        <div>
+            <button id="submit">纠错</button>
+            <input type="number" id="input" placeholder="请输入纠错的值" >
+        </div>
+        <button type="submit" id="mnist-pad-save"  onclick="uploadCanvasAsImage(canvas,'http://localhost:8080/HandWrite.html')">上传</button>
+        </div>
+
+    </div></div>
+<script>
+
+    const canvas = document.querySelector("canvas");
+    const ctx = canvas.getContext("2d");
+    const clear = document.querySelector(".clear")
+    const submitButton = document.getElementById('submit');
+    const input = document.getElementById('input');
+    ctx.lineWidth=15;
+    ctx.lineCap="round";
+    ctx.fillStyle='#f8f6ea';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // 监听鼠标进入 canvas, 监听鼠标指针按下和抬起
+    canvas.addEventListener('mouseenter', () => {
+        // 监听鼠标指针按下
+        canvas.addEventListener('mousedown', (e) => {
+            // 开始绘制路径
+            ctx.beginPath()
+            // 设置绘制的起点为当前点击的位置
+            ctx.moveTo(e.offsetX, e.offsetY)
+            // 监听键盘移动事件
+            canvas.addEventListener('mousemove', draw)
+        })
+        canvas.addEventListener('mouseup', () => {
+            // 移除鼠标移动事件
+            canvas.removeEventListener('mousemove', draw)
+        })
+    })
+    function draw(e) {
+        // 绘制线
+
+        ctx.lineTo(e.offsetX, e.offsetY)
+        // 描边路径
+        ctx.stroke()
+    }
+
+    clear.addEventListener('click', () => {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle='#f8f6ea';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        document.getElementById("mnist-pad-result").innerText = "";
+
+        input.value = '';
+
+    })
+
+
+    function uploadCanvasAsImage(canvas, url) {
+        // 创建一个新的图片元素
+        const image = new Image();
+        // 将canvas中的内容赋值给新的图片元素
+        image.src = canvas.toDataURL("image/png");
+        // 将图片转换成二进制数据
+        const binaryImageData = atob(image.src.split(",")[1]);
+        // 创建一个Uint8Array类型的数组
+        const imageData = new Uint8Array(binaryImageData.length);
+        // 将二进制数据转换成Uint8Array类型的数组
+        for (var i = 0; i < binaryImageData.length; i++) {
+            imageData[i] = binaryImageData.charCodeAt(i);
+        }
+        // 创建一个Blob对象
+        const blob = new Blob([imageData], { type: "image/png" });
+        // 创建一个FormData对象
+        const formData = new FormData();
+        // 将Blob对象添加到FormData对象中
+        formData.append("image", blob, "canvas-image.png");
+        // 创建一个XMLHttpRequest对象
+        const xhr = new XMLHttpRequest();
+        // 设置请求方式和请求地址
+        xhr.open("POST", url);
+        // 发送POST请求
+        xhr.send(formData);
+
+        // 在请求完成后检查状态码，并显示返回的data值
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // 获取后端返回的data值
+                const responseData =JSON.parse(xhr.responseText);
+                // 将data值显示在mnist-pad-result元素中
+                document.getElementById("mnist-pad-result").textContent = responseData.result;
+            }
+        };
+    }
+
+
+
+    // 添加点击事件监听器：纠错按钮
+    submitButton.addEventListener('click', () => {
+        // 获取用户输入的数字值
+        const value = input.value;
+        // 将画布上的图像打包成data URL
+        const dataUrl = canvas.toDataURL();
+        const data = {
+            image: dataUrl,
+            value: value
+        };
+        // 发送POST请求到服务器
+        fetch('http://localhost:8080/HandWrite.html', {
+            method: 'POST',
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                console.log(response);
+                document.getElementById("mnist-pad-result").textContent = input.value;
+                input.value = '';
+            })
+            .catch(error => {
+                // 处理错误
+                console.error(error);
+            });
+
+    });
+</script>
+
+
+
+
+</body>
+
+</html>
+
+<!--//将canvas内容转换成图片并上传至服务器-->
+<!--// function uploadCanvasAsImage(canvas, url) {-->
+<!--//     // 创建一个新的图片元素-->
+<!--//     var image = new Image();-->
+<!--//     // 将canvas中的内容赋值给新的图片元素-->
+<!--//     image.src = canvas.toDataURL("image/png");-->
+<!--//     // 将图片转换成二进制数据-->
+<!--//     var binaryImageData = atob(image.src.split(",")[1]);-->
+<!--//     // 创建一个Uint8Array类型的数组-->
+<!--//     var imageData = new Uint8Array(binaryImageData.length);-->
+<!--//     // 将二进制数据转换成Uint8Array类型的数组-->
+<!--//     for (var i = 0; i < binaryImageData.length; i++) {-->
+<!--//         imageData[i] = binaryImageData.charCodeAt(i);-->
+<!--//     }-->
+<!--//     // 创建一个Blob对象-->
+<!--//     var blob = new Blob([imageData], { type: "image/png" });-->
+<!--//     // 创建一个FormData对象-->
+<!--//     var formData = new FormData();-->
+<!--//     // 将Blob对象添加到FormData对象中-->
+<!--//     formData.append("image", blob, "canvas-image.png");-->
+<!--//     // 创建一个XMLHttpRequest对象-->
+<!--//     var xhr = new XMLHttpRequest();-->
+<!--//     // 设置请求方式和请求地址-->
+<!--//     xhr.open("POST", url);-->
+<!--//     // 发送FormData对象-->
+<!--//     xhr.send(formData);-->
+<!--// }-->
+
+
+
+
+
+<!--// function uploadCanvasAsImage(canvas, url) {-->
+<!--//        // 创建一个新的图片元素-->
+<!--//     var image = new Image();-->
+<!--//        // 将canvas中的内容赋值给新的图片元素-->
+<!--//     image.src = canvas.toDataURL("image/png");-->
+<!--//      // 将图片转换成二进制数据-->
+<!--//     var binaryImageData = atob(image.src.split(",")[1]);-->
+<!--//       // 创建一个Uint8Array类型的数组-->
+<!--//     var imageData = new Uint8Array(binaryImageData.length);-->
+<!--//           // 将二进制数据转换成Uint8Array类型的数组-->
+<!--//     for (var i = 0; i < binaryImageData.length; i++) {-->
+<!--//         imageData[i] = binaryImageData.charCodeAt(i);-->
+<!--//     }-->
+<!--//        // 创建一个Blob对象-->
+<!--//     var blob = new Blob([imageData], { type: "image/png" });-->
+<!--//       // 创建一个FormData对象-->
+<!--//     var formData = new FormData();-->
+<!--//        // 将Blob对象添加到FormData对象中-->
+<!--//     formData.append("image", blob, "canvas-image.png");-->
+<!--//       // 创建一个XMLHttpRequest对象-->
+<!--//     var xhr = new XMLHttpRequest();-->
+<!--//         // 设置请求方式和请求地址-->
+<!--//     xhr.open("GET", url + "?image=" + encodeURIComponent(image.src));-->
+<!--//           // 发送GET请求-->
+<!--//     xhr.send();-->
+<!--// }-->

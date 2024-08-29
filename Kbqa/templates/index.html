@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>仿制WeChat聊天框</title>
+    <style>
+        /* CSS样式 */
+        .chat-container {
+            width: 100vh;
+            margin: 0 auto;
+            place-content: top;
+        }
+
+        .chat-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .chat-messages {
+            max-height: 300px;
+            overflow-y: scroll;
+        }
+
+        .message {
+            margin: 5px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .received {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        .sent {
+            background-color: #d4eaff;
+            text-align: right;
+        }
+
+        .input-message {
+            border: 2px solid transparent;
+            width: 80vh;
+            height: 2.5em;
+            padding-left: 0.8em;
+            outline: none;
+            overflow: hidden;
+            background-color: #F3F3F3;
+            border-radius: 10px;
+            transition: all 0.5s;
+        }
+
+        .send-btn {
+            padding: 12.5px 30px;
+            border: 0;
+            border-radius: 100px;
+            background-color: #2ba8fb;
+            color: #ffffff;
+            font-weight: Bold;
+            transition: all 0.5s;
+            -webkit-transition: all 0.5s;
+        }
+
+        .send-btn:hover {
+            background-color: #6fc5ff;
+            box-shadow: 0 0 20px #6fc5ff50;
+            transform: scale(1.1);
+        }
+
+        .send-btn:active {
+            background-color: #3d94cf;
+            transition: all 0.25s;
+            -webkit-transition: all 0.25s;
+            box-shadow: none;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-box">
+        <div class="chat-messages" id="chat-messages">
+            <!-- 这里是聊天消息 -->
+            <div class="message received">Hello!</div>
+            <div class="message sent">Hi there!</div>
+        </div>
+        <input class="input-message" type="text" id="message-input" placeholder="Type a message...">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    // JavaScript代码
+    function sendMessage() {
+        const messageInput = document.getElementById('message-input');
+        const messageText = messageInput.value;
+
+        if (messageText.trim() !== '') {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = messageText;
+            messageDiv.classList.add('message', 'sent');
+            chatMessages.appendChild(messageDiv);
+
+            // 清空输入框
+            messageInput.value = '';
+        }
+    }
+</script>
+</body>
+</html>

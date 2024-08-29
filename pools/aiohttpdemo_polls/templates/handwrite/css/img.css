@@ -1,0 +1,51 @@
+html body{
+    width: 100%;
+    height: 100vh;
+
+}
+.wrapper{
+    width: 100%;
+    height: 100vh;
+    border: 1px solid #bbbbbb;
+    background-color: #bbbbbb;
+/*background-image: url();*/
+    background-size: cover;
+}
+
+.preview{
+    height: 400px;
+    width: 600px;
+    /*border: 1px solid red;*/
+    margin-left: 33vw;
+    margin-top: 12vw;
+    background-color: white;
+    border: 1px solid black;
+
+}
+.image{
+    width: 600px;
+    height: 400px;
+}
+.bottom {
+    margin-top: 0.5vw;
+    /*border: 1px solid black;*/
+    margin-left: 35vw;
+    margin-right: 18.8vw;
+
+}
+input{
+    width: 20vw;
+
+    font-size: 20px;
+
+}
+#uploadBtn{
+    font-size: 20px;
+}
+h3{
+    font-size: 35px;
+    display: inline-block
+}
+.result{
+
+}

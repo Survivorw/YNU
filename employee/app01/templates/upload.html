@@ -1,0 +1,17 @@
+<!DOCYPYE HTML>
+<HTML lang="en">
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+     <title>Document</title>
+</head>
+<body>
+    <h2>文件上传实例</h2>
+    <form  action="/img/upload/" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+         <input type="text" placeholder="" name="title"/><br/><br/>
+         <input type="file" name="pic"/><br/><br/>
+         <input type="submit" value="上传"/>
+    </form>
+</body>
+<html>

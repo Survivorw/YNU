@@ -1,0 +1,109 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+
+}
+h5 {
+    margin: 0;
+    padding: 0
+
+}
+#mnist-pad {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-size: 1em;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.27), 0 0 40px rgba(0, 0, 0, 0.08) inset;
+    padding: 16px;
+}
+.mnist-pad-body {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex: 1;
+    border: 1px solid #f4f4f4;
+    /*border: 1px solid red;*/
+    /*background-image: url("../img/img_1.png");*/
+    background-color: dimgrey;
+
+
+}
+.mnist-pad-body canvas {
+    /*position: absolute;*/
+    /*left: 0;*/
+    /*top: 0;*/
+    position: absolute;
+    top: 50%;/* 子元素设置上和左偏移的值都为50% */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.02) inset;
+    /*background-color: #bbbbbb;#cbdcf4*/
+    /*background-color: #C3C3C3;*/
+
+}
+.mnist-pad-footer {
+    color: #C3C3C3;
+    font-size: 1.2em;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    /*background-color: #edd0d0;*/
+    background-color: #4a4a4a;
+}
+.mnist-pad-result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.mnist-pad-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+#mnist-pad-clear {
+    height: 44px;
+    background-color: #eeeeee;
+    width: 98px;
+    border: none;
+    font-size: 16px;
+    color: #4a4a4a;
+    cursor: pointer;
+}
+#mnist-pad-save {
+    height: 44px;
+    background-color: #3b3b3b;
+    width: 98px;
+    border: none;
+    font-size: 16px;
+    color: #ffffff;
+    cursor: pointer;
+}
+#submit{
+    height: 44px;
+    background-color: #bbbbbb;
+    width: 98px;
+    border: none;
+    font-size: 16px;
+    color:black;
+    cursor: pointer;
+    /*border: 1px solid red;*/
+}
+#input{
+    height: 35px;
+
+}
+h5{
+    font-size: 30px;
+    display: inline-block;
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>图片上传</title>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0">
+    <link rel="stylesheet" href="css/img.css">
+</head>
+<body>
+<div class="wrapper">
+<div id="preview" class="preview" >  </div>
+<div class="bottom">
+    <input type="file" id="fileInput" accept="image/*" >
+    <button id="uploadBtn" >上传图片</button>
+</div>
+
+ <div class="result" style="margin-left: 35vw">
+     <h3 >识别结果:</h3>
+     <h3 id="result"></h3>
+ </div>
+
+</div>
+</body>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const preview = document.getElementById('preview');
+
+    let fileList = [];
+
+    fileInput.addEventListener('change', (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const previewUrl = reader.result;
+                    const previewFile = { name: file.name, type: file.type, size: file.size, preview: previewUrl };
+                    fileList = [previewFile];
+                    preview.innerHTML = `<img  class="image"  src="${previewUrl}" alt="${file.name}" ">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('只能上传图片');
+            }
+        }
+    });
+
+
+ uploadBtn.addEventListener('click', async () => {
+        const fileList = document.getElementById('fileInput').files;
+
+        if (fileList.length > 0) {
+            const file = fileList[0];
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const fileData = reader.result.split(',')[1]; // 将 data URL 中的逗号及前缀部分去掉，只保留 Base64 编码的数据部分
+                const jsonData = JSON.stringify({ fileData });
+                try {
+                    const response = await fetch('http://localhost:8080/img.html', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: jsonData
+                    });
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        document.getElementById('result').textContent = responseData.result;
+                        alert('上传成功');
+                    } else {
+                        alert('上传失败');
+                    }
+                } catch (error) {
+                    alert('上传失败');
+                    console.error(error);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert('请先选择要上传的图片');
+        }
+    });
+
+
+</script>
+</html>
+
+
+<!--// var xhr = new XMLHttpRequest();-->
+<!--// xhr.open('GET', 'http://example.com/data', true);-->
+<!--// xhr.onreadystatechange = function() {-->
+<!--//     if (xhr.readyState === 4 && xhr.status === 200) {-->
+<!--//         var response = JSON.parse(xhr.responseText);-->
+<!--//         var data =response.data;-->
+<!--//         // 渲染数据到页面上-->
+<!--//         var result = document.getElementById('result');-->
+<!--//         result.innerHTML = data;-->
+<!--//-->
+<!--//     }-->
+<!--// };-->
+<!--// xhr.send();-->
+
+
+<!--// uploadBtn.addEventListener('click', () => {-->
+<!--//     if (fileList.length > 0) {-->
+<!--//         const formData = new FormData();-->
+<!--//         formData.append('file', fileList[0]);-->
+<!--//         const xhr = new XMLHttpRequest();-->
+<!--//         xhr.open('POST', 'https://myserver.com/upload （服务器地址）');-->
+<!--//         xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('token'));-->
+<!--//         xhr.onload = () => {-->
+<!--//             if (xhr.status === 200) {-->
+<!--//                 alert('上传成功');-->
+<!--//             } else {-->
+<!--//                 alert('上传失败');-->
+<!--//             }-->
+<!--//         };-->
+<!--//         xhr.send(formData);-->
+<!--//     } else {-->
+<!--//         alert('请先选择要上传的图片');-->
+<!--//     }-->
+<!--// });-->
+
+
+
+
+
+<!--uploadBtn.addEventListener('click', () => {-->
+<!--if (fileList.length > 0) {-->
+<!--const xhr = new XMLHttpRequest();-->
+<!--xhr.open('GET', `localhost:8080/img.html=${encodeURIComponent(fileList[0].preview)}`);-->
+<!--xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('token'));-->
+<!--xhr.onload = () => {-->
+<!--if (xhr.status === 200) {-->
+<!--const responseData = JSON.parse(xhr.responseText);-->
+<!--document.getElementById('result').textContent = responseData.result;-->
+<!--alert('上传成功');-->
+<!--} else {-->
+<!--alert('上传失败');-->
+<!--}-->
+<!--};-->
+<!--xhr.send();-->
+<!--} else {-->
+<!--alert('请先选择要上传的图片');-->
+<!--}-->
+<!--});-->

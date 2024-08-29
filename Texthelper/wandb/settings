@@ -1,0 +1,5 @@
+[default]
+entity = 2326028512
+project = flaskapp
+base_url = https://api.wandb.ai
+

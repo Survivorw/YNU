@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>写作小助手</title>
+    <style>
+        .item-hints {
+            --purple: #720c8f;
+            cursor: pointer;
+            display: flex;
+            justify-content: flex-start;
+            padding-right: 170px;
+        }
+
+        .item-hints .hint {
+            margin: 150px auto;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item-hints .hint-dot {
+            z-index: 3;
+            border: 1px solid #020000;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            -webkit-transform: translate(-0%, -0%) scale(0.95);
+            transform: translate(-0%, -0%) scale(0.95);
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #020000;
+        }
+
+        .item-hints .hint-radius {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -125px 0 0 -125px;
+            opacity: 0;
+            visibility: hidden;
+            -webkit-transform: scale(0);
+            transform: scale(0);
+        }
+
+        .item-hints .hint[data-position="1"] .hint-content {
+            top: 85px;
+            left: 50%;
+            margin-left: 56px;
+        }
+
+        .item-hints .hint-content {
+            width: 300px;
+            position: absolute;
+            z-index: 5;
+            padding: 35px 0;
+            opacity: 0;
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+            color: #020000;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .item-hints .hint:hover .hint-content {
+            position: absolute;
+            z-index: 5;
+            padding: 35px 0;
+            opacity: 1;
+            -webkit-transition: opacity 0.7s ease, visibility 0.7s ease;
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+            color: #020000;
+            visibility: visible;
+            pointer-events: none;
+        }
+
+        .item-hints .hint-content::before {
+            width: 0px;
+            bottom: 29px;
+            left: 0;
+            content: "";
+            background-color: #020000;
+            height: 1px;
+            position: absolute;
+            transition: width 0.4s;
+        }
+
+        .item-hints .hint:hover .hint-content::before {
+            width: 180px;
+            transition: width 0.4s;
+        }
+
+        .item-hints .hint-content::after {
+            -webkit-transform-origin: 0 50%;
+            transform-origin: 0 50%;
+            -webkit-transform: rotate(-225deg);
+            transform: rotate(-225deg);
+            bottom: 29px;
+            left: 0;
+            width: 80px;
+            content: "";
+            background-color: #020000;
+            height: 1px;
+            position: absolute;
+            opacity: 1;
+            -webkit-transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease;
+            -webkit-transition-delay: 0s;
+            transition-delay: 0s;
+        }
+
+        .item-hints .hint:hover .hint-content::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .item-hints .hint[data-position="4"] .hint-content {
+            bottom: 85px;
+            left: 50%;
+            margin-left: 56px;
+        }
+
+        .leftup {
+            display: flex;
+            align-items: center;
+        }
+
+        .plusButton {
+            /* Config start */
+            --plus_sideLength: 2.5rem;
+            --plus_topRightTriangleSideLength: 0.9rem;
+            /* Config end */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid white;
+            width: var(--plus_sideLength);
+            height: var(--plus_sideLength);
+            background-color: #000000;
+            overflow: hidden;
+        }
+
+        .plusButton::before {
+            position: absolute;
+            content: "";
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-width: 0 var(--plus_topRightTriangleSideLength) var(--plus_topRightTriangleSideLength) 0;
+            border-style: solid;
+            border-color: transparent white transparent transparent;
+            transition-timing-function: ease-in-out;
+            transition-duration: 0.2s;
+        }
+
+        .plusButton:hover {
+            cursor: pointer;
+        }
+
+        .plusButton:hover::before {
+            --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+        }
+
+        .plusButton:focus-visible::before {
+            --plus_topRightTriangleSideLength: calc(var(--plus_sideLength) * 2);
+        }
+
+        .plusButton > .plusIcon {
+            fill: white;
+            width: calc(var(--plus_sideLength) * 0.7);
+            height: calc(var(--plus_sideLength) * 0.7);
+            z-index: 1;
+            transition-timing-function: ease-in-out;
+            transition-duration: 0.2s;
+        }
+
+        .plusButton:hover > .plusIcon {
+            fill: black;
+            transform: rotate(180deg);
+        }
+
+        .plusButton:focus-visible > .plusIcon {
+            fill: black;
+            transform: rotate(180deg);
+        }
+
+        .group {
+            display: flex;
+            line-height: 28px;
+            align-items: center;
+            position: relative;
+            max-width: 190px;
+        }
+
+        .input_search {
+            height: 40px;
+            line-height: 28px;
+            padding: 0 1rem;
+            width: 100%;
+            padding-left: 2.5rem;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            outline: none;
+            background-color: #D9E8D8;
+            color: #0d0c22;
+            box-shadow: 0 0 5px #C1D9BF, 0 0 0 10px #f5f5f5eb;
+            transition: .3s ease;
+        }
+
+        .input_search::placeholder {
+            color: #777;
+        }
+
+        .icon {
+            position: absolute;
+            left: 1rem;
+            fill: #777;
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .choice-container {
+            display: flex;
+            align-items: center;
+            transform: translateX(20%);
+            margin-bottom: 10px;
+
+        }
+
+        .input_zishu {
+            max-width: 190px;
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: black;
+            padding: 1rem;
+            box-shadow: 2px 2px 5px black, inset 2px 2px 5px rgb(53, 51, 51),
+            -1px -1px 20px rgba(59, 56, 56, 0.781);
+            outline: none;
+            border-radius: 10px;
+            font-size: medium;
+            margin-left: 20px;
+            width: 150px;
+            height: 10px;
+        }
+
+        .input_zishu:focus {
+            box-shadow: 2px 2px 5px black, inset 2px 2px 5px black,
+            -1px -1px 5px rgba(68, 67, 67, 0.781),
+            inset -1px -1px 5px rgba(66, 65, 65, 0.822);
+        }
+
+        .radio-inputs {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            border-radius: 0.5rem;
+            background-color: #EEE;
+            box-sizing: border-box;
+            box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+            padding: 0.25rem;
+            width: 90vh;
+            font-size: 14px;
+        }
+
+        .radio-inputs .radio {
+            flex: 1 1 auto;
+            text-align: center;
+
+        }
+
+        .radio-inputs .radio input {
+            display: none;
+        }
+
+        .radio-inputs .radio .name {
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            border: none;
+            padding: .5rem 0;
+            color: rgba(51, 65, 85, 1);
+            transition: all .15s ease-in-out;
+        }
+
+        .radio-inputs .radio input:checked + .name {
+            background-color: #fff;
+            font-weight: 600;
+        }
+
+        .textbox-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+            height: 100%;
+            flex: 15;
+
+        }
+
+        .input {
+            border: none;
+            padding: 1rem;
+            border-radius: 1rem;
+            background: #e8e8e8;
+            box-shadow: 20px 20px 60px #c5c5c5,
+            -20px -20px 60px #ffffff;
+            transition: 0.3s;
+            width: 80%;
+            word-wrap: break-word;
+            height: 50%;
+            margin-bottom: 20px;
+        }
+
+        .input:focus {
+            outline-color: #e8e8e8;
+            background: #e8e8e8;
+            box-shadow: inset 20px 20px 60px #c5c5c5,
+            inset -20px -20px 60px #ffffff;
+            transition: 0.3s;
+        }
+
+        .input::placeholder {
+            color: #aaaaaa;
+        }
+
+        .button-container {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            flex: 1
+        }
+
+        .button {
+            width: 5em;
+            height: 1.5em;
+            margin: 0.5em;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 0.625em;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        button:hover {
+            color: black;
+        }
+
+        button:after {
+            content: "";
+            background: white;
+            position: absolute;
+            z-index: -1;
+            left: -20%;
+            right: -20%;
+            top: 0;
+            bottom: 0;
+            transform: skewX(-45deg) scale(0, 1);
+            transition: all 0.5s;
+        }
+
+        button:hover:after {
+            transform: skewX(-45deg) scale(1, 1);
+            -webkit-transition: all 0.5s;
+            transition: all 0.5s;
+        }
+
+        .line-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            margin-top: 20px;
+            position: relative;
+            flex: 1
+        }
+
+        .line {
+            width: 80%;
+            height: 2px;
+            background-color: #cccccc;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            height: 100%;
+
+        }
+
+        .left {
+            flex: 17%;
+            padding: 20px;
+
+        }
+
+        .right {
+            flex: 83%;
+            background-color: #ffffff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-image: url("https://th.bing.com/th/id/OIP.YjF2NCl_OYJ0oKrTm7_CIgAAAA?rs=1&amp;pid=ImgDetMain");
+            background-repeat: repeat;
+            background-size: 100%;
+
+
+        }
+
+        .separator {
+            width: 2px;
+            background-color: #000000;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="left">
+        <div class="leftup">
+            <div class="group">
+                <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
+                    <g>
+                        <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+                    </g>
+                </svg>
+                <input placeholder="Search" type="search" class="input_search">
+            </div>
+            <div class="add">
+                <div tabindex="0" class="plusButton">
+                    <svg class="plusIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+                        <g mask="url(#mask0_21_345)">
+                            <path d="M13.75 23.75V16.25H6.25V13.75H13.75V6.25H16.25V13.75H23.75V16.25H16.25V23.75H13.75Z"></path>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="leftdown">
+            <div class="item-hints">
+                <div class="hint" data-position="4">
+                    <span class="hint-radius"></span>
+                    <span class="hint-dot">Tip</span>
+                    <div class="hint-content do--split-children">
+                        <p>信心源于实力,实力源于不断的努力。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="item-hints">
+                <div class="hint" data-position="4">
+                    <span class="hint-radius"></span>
+                    <span class="hint-dot">Tip</span>
+                    <div class="hint-content do--split-children">
+                        <p>信心源于实力,实力源于不断的努力。</p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="separator"></div>
+    <div class="right">
+        <!-- 右侧内容 -->
+        <div class="line-container">
+            <div class="line"></div>
+            <div class="button-container">
+                <button class="button" id="clear-btn" onclick="clearTextboxes()">清空</button>
+                <button class="button">作文纠错</button>
+                <button class="button" id="generate-btn" onclick="generateEssay()">作文生成</button>
+            </div>
+            <div>
+                <input id="num" class="input_zishu" placeholder="在此输入字数" name="text" type="text" pattern="\d*"/>
+            </div>
+        </div>
+
+        <div class="choice-container" >
+            <div class="radio-inputs" id="Type">
+                <label class="radio">
+                    <input type="radio" name="radio" checked="" value="记叙文">
+                    <span class="name">记叙文</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="议论文">
+                    <span class="name">议论文</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="散文">
+                    <span class="name">散文</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="写景">
+                    <span class="name">写景</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="读后感">
+                    <span class="name">读后感</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="诗歌">
+                    <span class="name">诗歌</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="日记">
+                    <span class="name">日记</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="状物">
+                    <span class="name">状物</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio" value="写人">
+                    <span class="name">写人</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="choice-container" >
+            <div class="radio-inputs" id="level">
+                <label class="radio">
+                    <input type="radio" name="radio2" checked="" value="一二年级">
+                    <span class="name">一二年级</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="三四年级">
+                    <span class="name">三四年级</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="五六年级">
+                    <span class="name">五六年级</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="初一">
+                    <span class="name">初一</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="初二">
+                    <span class="name">初二</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="初三">
+                    <span class="name">初三</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="高一">
+                    <span class="name">高一</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="高二">
+                    <span class="name">高二</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="radio2" value="高三">
+                    <span class="name">高三</span>
+                </label>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="textbox-container">
+            <textarea id='input-text' type="text" name="text" class="input" placeholder="Type here..."></textarea>
+            <textarea id='output-text' type="text" name="text" class="input" placeholder="Type here..."></textarea>
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+    const clearBtn = document.getElementById('clear-btn');
+    const generateBtn = document.getElementById('generate-btn');
+    const inputText = document.getElementById('input-text');
+    const outputText = document.getElementById('output-text');
+    const num = document.getElementById('num')
+    const radioInputs = document.getElementById('level').getElementsByTagName('input');
+    const radioInputs2 = document.getElementById('Type').getElementsByTagName('input');
+    let aaa=""
+    let bbb=""
+    clearBtn.addEventListener('click', async () => {
+        inputText.value = '';
+        outputText.value = '';
+    });
+
+    generateBtn.addEventListener('click', async () => {
+        const userInput = inputText.value.trim();
+        if (userInput !== '') {
+            outputText.innerText = await generateText(userInput);
+        } else {
+            outputText.innerText = '请输入文本以生成结果。';
+        }
+        });
+
+    async function generateText(input) {
+            for (var i = 0; i < radioInputs.length; i++) {
+
+            if (radioInputs[i].checked) {
+                aaa = radioInputs[i].value;
+                break;
+            }
+            }
+            for (var i = 0; i < radioInputs2.length; i++) {
+
+            if (radioInputs2[i].checked) {
+                bbb = radioInputs2[i].value;
+                break;
+            }
+            }
+            input = "生成一篇有关"+input+"的"+aaa+"水平的"+num.value.trim()+"字"+bbb
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({input: input})
+            });
+
+            const data = await response.json();
+            return data.result || '无法生成文本。';
+        }
+
+
+
+</script>
+</body>
+</html>
